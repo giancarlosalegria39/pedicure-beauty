@@ -157,8 +157,11 @@ if bg_pedicure_clasico_b64:
     clasico_css = f"""
     .card-pedicure-clasico {{
         background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 240, 246, 0.74) 100%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.56) 0%, rgba(255, 240, 246, 0.48) 100%),
             url("data:image/jpeg;base64,{bg_pedicure_clasico_b64}") center / cover no-repeat !important;
+    }}
+    .card-pedicure-clasico .service-card-content {{
+        text-shadow: 0 1px 8px rgba(255, 255, 255, 0.92), 0 0 2px rgba(255, 255, 255, 0.95);
     }}
     """
 
