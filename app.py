@@ -1,6 +1,8 @@
+import base64
 import hashlib
 import os
 from datetime import date, time
+from pathlib import Path
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import streamlit as st
@@ -12,6 +14,8 @@ st.set_page_config(
 )
 
 WHATSAPP_URL = "https://wa.me/51918839586"
+BASE_DIR = Path(__file__).parent
+IMAGEN_FONDO = BASE_DIR / "fondo_inicio.png"
 
 SERVICIOS = [
     {
@@ -53,6 +57,12 @@ SERVICIOS = [
 ]
 
 
+def get_image_base64(image_path: Path) -> str:
+    if not image_path.exists():
+        return ""
+    return base64.b64encode(image_path.read_bytes()).decode("utf-8")
+
+
 def get_connection():
     db = st.secrets["postgres"]
     return psycopg2.connect(
@@ -77,38 +87,57 @@ if "pagina" not in st.session_state:
 if "servicio_seleccionado" not in st.session_state:
     st.session_state.servicio_seleccionado = SERVICIOS[0]["nombre"]
 
-st.markdown(
-    """
+bg_base64 = get_image_base64(IMAGEN_FONDO)
+pagina = st.session_state.pagina
+
+fondo_css = ""
+if pagina == "Inicio" and bg_base64:
+    fondo_css = f"""
     <style>
-    .hero-box {
-        background: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 100%);
-        padding: 2.2rem;
-        border-radius: 16px;
-        border: 1px solid #f8bbd0;
+    [data-testid="stAppViewContainer"] > .main {{
+        background:
+            linear-gradient(rgba(255, 240, 246, 0.78), rgba(255, 228, 238, 0.82)),
+            url("data:image/png;base64,{bg_base64}") center / cover no-repeat fixed;
+    }}
+    </style>
+    """
+
+st.markdown(
+    f"""
+    {fondo_css}
+    <style>
+    .hero-box {{
+        background:
+            linear-gradient(135deg, rgba(255, 240, 245, 0.72) 0%, rgba(255, 214, 229, 0.78) 100%)
+            {f', url("data:image/png;base64,{bg_base64}") center / cover no-repeat' if bg_base64 else ''};
+        padding: 2.4rem;
+        border-radius: 18px;
+        border: 1px solid #f48fb1;
+        box-shadow: 0 8px 24px rgba(173, 20, 87, 0.08);
         margin-bottom: 1.5rem;
-    }
-    .service-card {
-        background-color: #ffffff;
+    }}
+    .service-card {{
+        background-color: rgba(255, 255, 255, 0.94);
         padding: 1.3rem;
         border-radius: 14px;
         border: 1px solid #f3d1dc;
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         margin-bottom: 1rem;
         min-height: 210px;
-    }
-    .price-tag {
+    }}
+    .price-tag {{
         font-size: 1.15rem;
         font-weight: 700;
         color: #ad1457;
-    }
-    .gallery-tile {
+    }}
+    .gallery-tile {{
         border-radius: 14px;
         padding: 2.5rem 1rem;
         text-align: center;
         font-weight: 600;
         color: #4a1525;
         margin-bottom: 1rem;
-    }
+    }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -126,8 +155,6 @@ with st.sidebar:
 
     st.divider()
     st.link_button("Escribir por WhatsApp", WHATSAPP_URL, use_container_width=True)
-
-pagina = st.session_state.pagina
 
 if pagina == "Inicio":
     st.markdown(
