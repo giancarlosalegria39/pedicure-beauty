@@ -91,13 +91,23 @@ bg_base64 = get_image_base64(IMAGEN_FONDO)
 pagina = st.session_state.pagina
 
 fondo_css = ""
-if pagina == "Inicio" and bg_base64:
+if pagina == "Inicio":
+    bg_layer = (
+        f'linear-gradient(rgba(255, 228, 238, 0.72), rgba(252, 209, 226, 0.78)), '
+        f'url("data:image/png;base64,{bg_base64}") center / cover no-repeat fixed'
+        if bg_base64
+        else "linear-gradient(180deg, #ffeef4 0%, #ffd6e6 100%)"
+    )
     fondo_css = f"""
     <style>
-    [data-testid="stAppViewContainer"] > .main {{
-        background:
-            linear-gradient(rgba(255, 240, 246, 0.78), rgba(255, 228, 238, 0.82)),
-            url("data:image/png;base64,{bg_base64}") center / cover no-repeat fixed;
+    .stApp,
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"],
+    .main {{
+        background: {bg_layer} !important;
+    }}
+    [data-testid="stHeader"] {{
+        background: rgba(255, 235, 243, 0.75) !important;
     }}
     </style>
     """
