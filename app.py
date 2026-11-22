@@ -90,7 +90,7 @@ if "servicio_seleccionado" not in st.session_state:
 bg_base64 = get_image_base64(IMAGEN_FONDO)
 pagina = st.session_state.pagina
 
-fondo_css = ""
+fondo_inicio_css = ""
 if pagina == "Inicio":
     bg_layer = (
         f'linear-gradient(rgba(255, 228, 238, 0.72), rgba(252, 209, 226, 0.78)), '
@@ -98,8 +98,7 @@ if pagina == "Inicio":
         if bg_base64
         else "linear-gradient(180deg, #ffeef4 0%, #ffd6e6 100%)"
     )
-    fondo_css = f"""
-    <style>
+    fondo_inicio_css = f"""
     .stApp,
     [data-testid="stAppViewContainer"],
     [data-testid="stMain"],
@@ -109,13 +108,27 @@ if pagina == "Inicio":
     [data-testid="stHeader"] {{
         background: rgba(255, 235, 243, 0.75) !important;
     }}
-    </style>
     """
 
 st.markdown(
     f"""
-    {fondo_css}
     <style>
+    {fondo_inicio_css}
+    section[data-testid="stSidebar"],
+    section[data-testid="stSidebar"] > div {{
+        background: linear-gradient(180deg, #ffe4ee 0%, #fbd0e0 100%) !important;
+        border-right: 1px solid #f4b6ce !important;
+    }}
+    section[data-testid="stSidebar"] a[data-testid="stLinkButton"] {{
+        background-color: #fff5f8 !important;
+        border: 1px solid #e5739f !important;
+        color: #880e4f !important;
+        font-weight: 600 !important;
+    }}
+    section[data-testid="stSidebar"] a[data-testid="stLinkButton"]:hover {{
+        background-color: #fce4ec !important;
+        border-color: #c2185b !important;
+    }}
     .hero-box {{
         background:
             linear-gradient(135deg, rgba(255, 240, 245, 0.72) 0%, rgba(255, 214, 229, 0.78) 100%)
@@ -369,9 +382,4 @@ elif pagina == "Contacto":
                                     (nombre.strip(), correo.strip().lower(), mensaje.strip()),
                                 )
                             conn.commit()
-                        st.success("Mensaje enviado. ¡Gracias por escribirnos!")
-                    except Exception as e:
-                        st.error(f"No se pudo enviar el mensaje: {e}")
-
-st.divider()
-st.caption("© 2026 Pedicure Beauty. Todos los derechos reservados.")
+                        st.success("Mensaje enviado. ¡Gracias por escribir
