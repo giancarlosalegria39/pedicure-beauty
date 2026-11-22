@@ -20,6 +20,7 @@ IMAGEN_INICIO = BASE_DIR / "fondo_inicio.png"
 
 def resolver_imagen(base_dir: Path, nombre_base: str, extensiones: list[str]) -> Path:
     candidatas = [base_dir / f"{nombre_base}{ext}" for ext in extensiones]
+    candidatas.extend([base_dir / f"{nombre_base}{ext.upper()}" for ext in extensiones])
     candidatas.append(base_dir / nombre_base)
     for ruta in candidatas:
         if ruta.exists() and ruta.is_file():
@@ -45,42 +46,42 @@ SERVICIOS = [
         "nombre": "Pedicure clásico",
         "descripcion": "Limpieza, limado, cuidado de cutículas y esmalte tradicional.",
         "precio": "S/ 35",
-        "imagen_key": "pedicure_clasico",
+        "clase_extra": "card-pedicure-clasico",
     },
     {
         "icono": "✧",
         "nombre": "Pedicure spa",
         "descripcion": "Pedicure clásico, exfoliación, mascarilla e hidratación.",
         "precio": "S/ 55",
-        "imagen_key": None,
+        "clase_extra": "",
     },
     {
         "icono": "♡",
         "nombre": "Pedicure con gel",
         "descripcion": "Cuidado de uñas con acabado en gel de larga duración.",
         "precio": "S/ 65",
-        "imagen_key": None,
+        "clase_extra": "",
     },
     {
         "icono": "❀",
         "nombre": "Retiro de esmalte",
         "descripcion": "Retiro cuidadoso del producto y limpieza de la uña.",
         "precio": "S/ 15",
-        "imagen_key": None,
+        "clase_extra": "",
     },
     {
         "icono": "✦",
         "nombre": "Decoración sencilla",
         "descripcion": "Detalles decorativos para complementar tu pedicure.",
         "precio": "Desde S/ 10",
-        "imagen_key": None,
+        "clase_extra": "",
     },
     {
         "icono": "♡",
         "nombre": "Hidratación profunda",
         "descripcion": "Tratamiento hidratante para consentir tus pies.",
         "precio": "S/ 25",
-        "imagen_key": None,
+        "clase_extra": "",
     },
 ]
 
@@ -119,27 +120,17 @@ bg_inicio_b64 = get_image_base64(IMAGEN_INICIO)
 bg_secciones_b64 = get_image_base64(IMAGEN_SECCIONES)
 bg_pedicure_clasico_b64 = get_image_base64(IMAGEN_PEDICURE_CLASICO)
 
-IMAGENES_SERVICIOS = {
-    "pedicure_clasico": bg_pedicure_clasico_b64,
-}
-
 
 def render_tarjeta_servicio(srv: dict) -> str:
-    img_b64 = IMAGENES_SERVICIOS.get(srv.get("imagen_key") or "", "")
-    if img_b64:
-        estilo_fondo = (
-            f"background: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 240, 246, 0.78) 100%), "
-            f'url("data:image/jpeg;base64,{img_b64}") center / cover no-repeat;'
-        )
-    else:
-        estilo_fondo = "background-color: rgba(255, 255, 255, 0.94);"
-
+    clase_extra = srv.get("clase_extra", "")
     return f"""
-    <div class="service-card" style="{estilo_fondo}">
-        <div style="font-size:1.5rem;">{srv['icono']}</div>
-        <h4>{srv['nombre']}</h4>
-        <p>{srv['descripcion']}</p>
-        <p class="price-tag">{srv['precio']}</p>
+    <div class="service-card {clase_extra}">
+        <div class="service-card-content">
+            <div style="font-size:1.5rem;">{srv['icono']}</div>
+            <h4>{srv['nombre']}</h4>
+            <p>{srv['descripcion']}</p>
+            <p class="price-tag">{srv['precio']}</p>
+        </div>
     </div>
     """
 
@@ -160,6 +151,16 @@ else:
         if bg_secciones_b64
         else "linear-gradient(180deg, #fff5f9 0%, #ffe3ee 100%)"
     )
+
+clasico_css = ""
+if bg_pedicure_clasico_b64:
+    clasico_css = f"""
+    .card-pedicure-clasico {{
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 240, 246, 0.74) 100%),
+            url("data:image/jpeg;base64,{bg_pedicure_clasico_b64}") center / cover no-repeat !important;
+    }}
+    """
 
 fondo_pagina_css = f"""
 .stApp,
@@ -220,7 +221,9 @@ st.markdown(
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         margin-bottom: 1rem;
         min-height: 210px;
+        overflow: hidden;
     }}
+    {clasico_css}
     .price-tag {{
         font-size: 1.15rem;
         font-weight: 700;
