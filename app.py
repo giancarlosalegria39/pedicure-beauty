@@ -15,7 +15,23 @@ st.set_page_config(
 
 WHATSAPP_URL = "https://wa.me/51918839586"
 BASE_DIR = Path(__file__).parent
-IMAGEN_FONDO = BASE_DIR / "fondo_inicio.png"
+IMAGEN_INICIO = BASE_DIR / "fondo_inicio.png"
+
+
+def resolver_imagen_secciones(base_dir: Path) -> Path:
+    candidatas = [
+        base_dir / "fondo rosas-rosadas.jpg",
+        base_dir / "fondo rosas-rosadas.jpeg",
+        base_dir / "fondo rosas-rosadas.png",
+        base_dir / "fondo rosas-rosadas",
+    ]
+    for ruta in candidatas:
+        if ruta.exists() and ruta.is_file():
+            return ruta
+    return candidatas[0]
+
+
+IMAGEN_SECCIONES = resolver_imagen_secciones(BASE_DIR)
 
 SERVICIOS = [
     {
@@ -58,7 +74,7 @@ SERVICIOS = [
 
 
 def get_image_base64(image_path: Path) -> str:
-    if not image_path.exists():
+    if not image_path.exists() or not image_path.is_file():
         return ""
     return base64.b64encode(image_path.read_bytes()).decode("utf-8")
 
@@ -87,33 +103,41 @@ if "pagina" not in st.session_state:
 if "servicio_seleccionado" not in st.session_state:
     st.session_state.servicio_seleccionado = SERVICIOS[0]["nombre"]
 
-bg_base64 = get_image_base64(IMAGEN_FONDO)
+bg_inicio_b64 = get_image_base64(IMAGEN_INICIO)
+bg_secciones_b64 = get_image_base64(IMAGEN_SECCIONES)
 pagina = st.session_state.pagina
 
-fondo_inicio_css = ""
 if pagina == "Inicio":
     bg_layer = (
         f'linear-gradient(rgba(255, 228, 238, 0.72), rgba(252, 209, 226, 0.78)), '
-        f'url("data:image/png;base64,{bg_base64}") center / cover no-repeat fixed'
-        if bg_base64
+        f'url("data:image/png;base64,{bg_inicio_b64}") center / cover no-repeat fixed'
+        if bg_inicio_b64
         else "linear-gradient(180deg, #ffeef4 0%, #ffd6e6 100%)"
     )
-    fondo_inicio_css = f"""
-    .stApp,
-    [data-testid="stAppViewContainer"],
-    [data-testid="stMain"],
-    .main {{
-        background: {bg_layer} !important;
-    }}
-    [data-testid="stHeader"] {{
-        background: rgba(255, 235, 243, 0.75) !important;
-    }}
-    """
+else:
+    bg_layer = (
+        f'linear-gradient(rgba(255, 245, 249, 0.62), rgba(255, 235, 243, 0.68)), '
+        f'url("data:image/jpeg;base64,{bg_secciones_b64}") center / cover no-repeat fixed'
+        if bg_secciones_b64
+        else "linear-gradient(180deg, #fff5f9 0%, #ffe3ee 100%)"
+    )
+
+fondo_pagina_css = f"""
+.stApp,
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+.main {{
+    background: {bg_layer} !important;
+}}
+[data-testid="stHeader"] {{
+    background: rgba(255, 235, 243, 0.75) !important;
+}}
+"""
 
 st.markdown(
     f"""
     <style>
-    {fondo_inicio_css}
+    {fondo_pagina_css}
     section[data-testid="stSidebar"],
     section[data-testid="stSidebar"] > div {{
         background: linear-gradient(180deg, #ffe4ee 0%, #fbd0e0 100%) !important;
@@ -132,7 +156,7 @@ st.markdown(
     .hero-box {{
         background:
             linear-gradient(135deg, rgba(255, 240, 245, 0.72) 0%, rgba(255, 214, 229, 0.78) 100%)
-            {f', url("data:image/png;base64,{bg_base64}") center / cover no-repeat' if bg_base64 else ''};
+            {f', url("data:image/png;base64,{bg_inicio_b64}") center / cover no-repeat' if bg_inicio_b64 else ''};
         padding: 2.4rem;
         border-radius: 18px;
         border: 1px solid #f48fb1;
@@ -160,6 +184,15 @@ st.markdown(
         font-weight: 600;
         color: #4a1525;
         margin-bottom: 1rem;
+        border: 1px solid rgba(244, 143, 177, 0.55);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }}
+    [data-testid="stForm"] {{
+        background-color: rgba(255, 255, 255, 0.92);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid #f3d1dc;
+        box-shadow: 0 4px 14px rgba(173, 20, 87, 0.05);
     }}
     </style>
     """,
@@ -245,12 +278,12 @@ elif pagina == "Galería":
     st.caption("Ideas de colores y estilos para tu próxima cita.")
 
     estilos_galeria = [
-        ("Colores suaves", "#fce4ec"),
-        ("Detalles delicados", "#f8bbd0"),
-        ("Un toque de brillo", "#f3e5f5"),
-        ("Estilo natural", "#fff3e0"),
-        ("Momentos spa", "#e0f2f1"),
-        ("Tu estilo, tus uñas", "#ffebee"),
+        ("Colores suaves", "rgba(252, 228, 236, 0.92)"),
+        ("Detalles delicados", "rgba(248, 187, 208, 0.92)"),
+        ("Un toque de brillo", "rgba(243, 229, 245, 0.92)"),
+        ("Estilo natural", "rgba(255, 243, 224, 0.92)"),
+        ("Momentos spa", "rgba(224, 242, 241, 0.92)"),
+        ("Tu estilo, tus uñas", "rgba(255, 235, 238, 0.92)"),
     ]
     cols = st.columns(3)
     for idx, (titulo, color) in enumerate(estilos_galeria):
