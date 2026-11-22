@@ -132,6 +132,16 @@ fondo_pagina_css = f"""
 [data-testid="stHeader"] {{
     background: rgba(255, 235, 243, 0.75) !important;
 }}
+[data-testid="stMainBlockContainer"],
+.block-container {{
+    padding-bottom: 5.5rem !important;
+}}
+@media (max-width: 768px) {{
+    [data-testid="stMainBlockContainer"],
+    .block-container {{
+        padding-bottom: 6.5rem !important;
+    }}
+}}
 """
 
 st.markdown(
