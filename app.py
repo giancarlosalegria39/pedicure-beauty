@@ -18,20 +18,26 @@ BASE_DIR = Path(__file__).parent
 IMAGEN_INICIO = BASE_DIR / "fondo_inicio.png"
 
 
-def resolver_imagen_secciones(base_dir: Path) -> Path:
-    candidatas = [
-        base_dir / "fondo rosas-rosadas.jpg",
-        base_dir / "fondo rosas-rosadas.jpeg",
-        base_dir / "fondo rosas-rosadas.png",
-        base_dir / "fondo rosas-rosadas",
-    ]
+def resolver_imagen(base_dir: Path, nombre_base: str, extensiones: list[str]) -> Path:
+    candidatas = [base_dir / f"{nombre_base}{ext}" for ext in extensiones]
+    candidatas.append(base_dir / nombre_base)
     for ruta in candidatas:
         if ruta.exists() and ruta.is_file():
             return ruta
     return candidatas[0]
 
 
-IMAGEN_SECCIONES = resolver_imagen_secciones(BASE_DIR)
+IMAGEN_SECCIONES = resolver_imagen(
+    BASE_DIR,
+    "fondo rosas-rosadas",
+    [".jpg", ".jpeg", ".png"],
+)
+
+IMAGEN_PEDICURE_CLASICO = resolver_imagen(
+    BASE_DIR,
+    "pedicure-clasico",
+    [".jpg", ".jpeg", ".png"],
+)
 
 SERVICIOS = [
     {
@@ -39,36 +45,42 @@ SERVICIOS = [
         "nombre": "Pedicure clásico",
         "descripcion": "Limpieza, limado, cuidado de cutículas y esmalte tradicional.",
         "precio": "S/ 35",
+        "imagen_key": "pedicure_clasico",
     },
     {
         "icono": "✧",
         "nombre": "Pedicure spa",
         "descripcion": "Pedicure clásico, exfoliación, mascarilla e hidratación.",
         "precio": "S/ 55",
+        "imagen_key": None,
     },
     {
         "icono": "♡",
         "nombre": "Pedicure con gel",
         "descripcion": "Cuidado de uñas con acabado en gel de larga duración.",
         "precio": "S/ 65",
+        "imagen_key": None,
     },
     {
         "icono": "❀",
         "nombre": "Retiro de esmalte",
         "descripcion": "Retiro cuidadoso del producto y limpieza de la uña.",
         "precio": "S/ 15",
+        "imagen_key": None,
     },
     {
         "icono": "✦",
         "nombre": "Decoración sencilla",
         "descripcion": "Detalles decorativos para complementar tu pedicure.",
         "precio": "Desde S/ 10",
+        "imagen_key": None,
     },
     {
         "icono": "♡",
         "nombre": "Hidratación profunda",
         "descripcion": "Tratamiento hidratante para consentir tus pies.",
         "precio": "S/ 25",
+        "imagen_key": None,
     },
 ]
 
@@ -105,6 +117,33 @@ if "servicio_seleccionado" not in st.session_state:
 
 bg_inicio_b64 = get_image_base64(IMAGEN_INICIO)
 bg_secciones_b64 = get_image_base64(IMAGEN_SECCIONES)
+bg_pedicure_clasico_b64 = get_image_base64(IMAGEN_PEDICURE_CLASICO)
+
+IMAGENES_SERVICIOS = {
+    "pedicure_clasico": bg_pedicure_clasico_b64,
+}
+
+
+def render_tarjeta_servicio(srv: dict) -> str:
+    img_b64 = IMAGENES_SERVICIOS.get(srv.get("imagen_key") or "", "")
+    if img_b64:
+        estilo_fondo = (
+            f"background: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 240, 246, 0.78) 100%), "
+            f'url("data:image/jpeg;base64,{img_b64}") center / cover no-repeat;'
+        )
+    else:
+        estilo_fondo = "background-color: rgba(255, 255, 255, 0.94);"
+
+    return f"""
+    <div class="service-card" style="{estilo_fondo}">
+        <div style="font-size:1.5rem;">{srv['icono']}</div>
+        <h4>{srv['nombre']}</h4>
+        <p>{srv['descripcion']}</p>
+        <p class="price-tag">{srv['precio']}</p>
+    </div>
+    """
+
+
 pagina = st.session_state.pagina
 
 if pagina == "Inicio":
@@ -248,17 +287,7 @@ if pagina == "Inicio":
     cols = st.columns(3)
     for idx, srv in enumerate(SERVICIOS[:3]):
         with cols[idx]:
-            st.markdown(
-                f"""
-                <div class="service-card">
-                    <div style="font-size:1.5rem;">{srv['icono']}</div>
-                    <h4>{srv['nombre']}</h4>
-                    <p>{srv['descripcion']}</p>
-                    <p class="price-tag">{srv['precio']}</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            st.markdown(render_tarjeta_servicio(srv), unsafe_allow_html=True)
 
 elif pagina == "Catálogo":
     st.title("Catálogo de pedicure")
@@ -267,17 +296,7 @@ elif pagina == "Catálogo":
     cols = st.columns(3)
     for idx, srv in enumerate(SERVICIOS):
         with cols[idx % 3]:
-            st.markdown(
-                f"""
-                <div class="service-card">
-                    <div style="font-size:1.5rem;">{srv['icono']}</div>
-                    <h4>{srv['nombre']}</h4>
-                    <p>{srv['descripcion']}</p>
-                    <p class="price-tag">{srv['precio']}</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            st.markdown(render_tarjeta_servicio(srv), unsafe_allow_html=True)
             if st.button(f"Reservar {srv['nombre']}", key=f"btn_{idx}", use_container_width=True):
                 st.session_state.servicio_seleccionado = srv["nombre"]
                 st.session_state.pagina = "Reservas"
