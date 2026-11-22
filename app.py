@@ -382,4 +382,9 @@ elif pagina == "Contacto":
                                     (nombre.strip(), correo.strip().lower(), mensaje.strip()),
                                 )
                             conn.commit()
-                        st.success("Mensaje enviado. ¡Gracias por escribir
+                        st.success("Mensaje enviado. ¡Gracias por escribirnos!")
+                    except Exception as e:
+                        st.error(f"No se pudo enviar el mensaje: {e}")
+
+st.divider()
+st.caption("© 2026 Pedicure Beauty. Todos los derechos reservados.")
